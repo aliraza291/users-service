@@ -20,5 +20,9 @@
       "dest": "src/main.ts"
     }
   ],
+   "crons": [{
+    "path": "/poll",
+    "schedule": "5 * * * *"
+  }],
   "outputDirectory": "dist"
 }

@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { SqsConsumerService } from './services/sqs-consumer';
 
-@Controller('health')
+@Controller('poll')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
