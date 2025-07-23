@@ -1,3 +1,6 @@
+import { SqsConsumerService } from './services/sqs-consumer';
 export declare class AppService {
-    getHello(): string;
+    private readonly sqsConsumerService;
+    constructor(sqsConsumerService: SqsConsumerService);
+    getHello(): Promise<string>;
 }
