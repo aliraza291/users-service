@@ -10,6 +10,6 @@ import { ScheduleModule } from '@nestjs/schedule';
   
   imports: [UsersModule, ScheduleModule.forRoot(),],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,SqsConsumerService],
 })
 export class AppModule {}
