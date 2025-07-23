@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "vercel-build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "dev": "nest start --watch",
@@ -27,6 +28,8 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "aws-sdk": "^2.1692.0",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
