@@ -15,17 +15,20 @@ const aws_sdk_1 = require("aws-sdk");
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
 const users_service_1 = require("../modules/users/users.service");
+const schedule_1 = require("@nestjs/schedule");
 let SqsConsumerService = class SqsConsumerService {
     constructor(usersService) {
         this.usersService = usersService;
-        this.queueUrl = process.env.USERS_QUEUE_URL || 'https://sqs.us-east-1.amazonaws.com/account/users-queue';
+        this.queueUrl = process.env.USERS_QUEUE_URL ||
+            'https://sqs.us-east-1.amazonaws.com/account/users-queue';
         this.sqs = new aws_sdk_1.SQS({
             region: process.env.AWS_REGION || 'us-east-1',
             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         });
     }
-    onModuleInit() {
+    handleCron() {
+        console.log("tasks started.............");
         this.startPolling();
     }
     async startPolling() {
@@ -35,22 +38,24 @@ let SqsConsumerService = class SqsConsumerService {
                 QueueUrl: this.queueUrl,
                 MaxNumberOfMessages: 10,
                 WaitTimeSeconds: 20,
-                MessageAttributeNames: ['All']
+                MessageAttributeNames: ['All'],
             };
             const result = await this.sqs.receiveMessage(params).promise();
             if (result.Messages && result.Messages.length > 0) {
                 for (const message of result.Messages) {
                     await this.processMessage(message);
-                    await this.sqs.deleteMessage({
+                    await this.sqs
+                        .deleteMessage({
                         QueueUrl: this.queueUrl,
-                        ReceiptHandle: message.ReceiptHandle
-                    }).promise();
+                        ReceiptHandle: message.ReceiptHandle,
+                    })
+                        .promise();
                 }
             }
         }
         catch (error) {
             console.error('Error polling SQS:', error);
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            await new Promise((resolve) => setTimeout(resolve, 5000));
         }
     }
     async processMessage(message) {
@@ -132,7 +137,7 @@ let SqsConsumerService = class SqsConsumerService {
                     data: result,
                     errorMessage,
                     timestamp: new Date().toISOString(),
-                    eventType: event.type
+                    eventType: event.type,
                 };
                 await this.sendResponse(replyTo, response);
                 console.log('Response sent back to API Gateway');
@@ -153,18 +158,18 @@ let SqsConsumerService = class SqsConsumerService {
                 MessageAttributes: {
                     correlationId: {
                         DataType: 'String',
-                        StringValue: response.correlationId
+                        StringValue: response.correlationId,
                     },
                     eventType: {
                         DataType: 'String',
-                        StringValue: response.eventType
-                    }
-                }
+                        StringValue: response.eventType,
+                    },
+                },
             };
             const result = await this.sqs.sendMessage(params).promise();
             console.log('Response sent successfully:', {
                 correlationId: response.correlationId,
-                messageId: result.MessageId
+                messageId: result.MessageId,
             });
         }
         catch (error) {
@@ -174,6 +179,12 @@ let SqsConsumerService = class SqsConsumerService {
     }
 };
 exports.SqsConsumerService = SqsConsumerService;
+__decorate([
+    (0, schedule_1.Cron)('5 * * * * *'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], SqsConsumerService.prototype, "handleCron", null);
 exports.SqsConsumerService = SqsConsumerService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [users_service_1.UsersService])

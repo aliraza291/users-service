@@ -11,16 +11,15 @@ const common_1 = require("@nestjs/common");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const users_module_1 = require("./modules/users/users.module");
-const sqs_consumer_1 = require("./services/sqs-consumer");
-const users_service_1 = require("./modules/users/users.service");
+const schedule_1 = require("@nestjs/schedule");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [users_module_1.UsersModule],
+        imports: [users_module_1.UsersModule, schedule_1.ScheduleModule.forRoot(),],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService, sqs_consumer_1.SqsConsumerService, users_service_1.UsersService],
+        providers: [app_service_1.AppService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

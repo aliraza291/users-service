@@ -3,63 +3,66 @@ import { SQS } from 'aws-sdk';
 import { config } from 'dotenv';
 config();
 import { UsersService } from '../modules/users/users.service';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
-export class SqsConsumerService implements OnModuleInit {
+export class SqsConsumerService  {
   private sqs: SQS;
-  private readonly queueUrl = process.env.USERS_QUEUE_URL || 'https://sqs.us-east-1.amazonaws.com/account/users-queue';
+  private readonly queueUrl =
+    process.env.USERS_QUEUE_URL ||
+    'https://sqs.us-east-1.amazonaws.com/account/users-queue';
 
-  constructor(
-    private readonly usersService: UsersService,
-  ) {
+  constructor(private readonly usersService: UsersService) {
     this.sqs = new SQS({
       region: process.env.AWS_REGION || 'us-east-1',
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     });
   }
-
-  onModuleInit() {
+  @Cron('5 * * * * *')
+  handleCron() {
+    console.log("tasks started.............")
     this.startPolling();
   }
 
-   async startPolling() {
+  async startPolling() {
     console.log('Starting SQS polling for users queue...');
- 
-      try {
-        const params = {
-          QueueUrl: this.queueUrl,
-          MaxNumberOfMessages: 10,
-          WaitTimeSeconds: 20,
-          MessageAttributeNames: ['All']
-        };
 
-        const result = await this.sqs.receiveMessage(params).promise();
-        
-        if (result.Messages && result.Messages.length > 0) {
-          for (const message of result.Messages) {
-            await this.processMessage(message);
-            
-            // Delete message after processing
-            await this.sqs.deleteMessage({
+    try {
+      const params = {
+        QueueUrl: this.queueUrl,
+        MaxNumberOfMessages: 10,
+        WaitTimeSeconds: 20,
+        MessageAttributeNames: ['All'],
+      };
+
+      const result = await this.sqs.receiveMessage(params).promise();
+
+      if (result.Messages && result.Messages.length > 0) {
+        for (const message of result.Messages) {
+          await this.processMessage(message);
+
+          // Delete message after processing
+          await this.sqs
+            .deleteMessage({
               QueueUrl: this.queueUrl,
-              ReceiptHandle: message.ReceiptHandle!
-            }).promise();
-          }
+              ReceiptHandle: message.ReceiptHandle!,
+            })
+            .promise();
         }
-      } catch (error) {
-        console.error('Error polling SQS:', error);
-        await new Promise(resolve => setTimeout(resolve, 5000));
       }
+    } catch (error) {
+      console.error('Error polling SQS:', error);
+      await new Promise((resolve) => setTimeout(resolve, 5000));
     }
-  
+  }
 
   private async processMessage(message: any) {
     try {
       const event = JSON.parse(message.Body);
-      
+
       const replyTo = message.MessageAttributes?.replyTo?.StringValue;
-      
+
       console.log('Processing event:', event);
       console.log('Reply to:', replyTo);
 
@@ -139,7 +142,7 @@ export class SqsConsumerService implements OnModuleInit {
           data: result,
           errorMessage,
           timestamp: new Date().toISOString(),
-          eventType: event.type
+          eventType: event.type,
         };
 
         await this.sendResponse(replyTo, response);
@@ -147,7 +150,6 @@ export class SqsConsumerService implements OnModuleInit {
       } else {
         console.warn('No replyTo queue specified in message');
       }
-
     } catch (error) {
       console.error('Error processing message:', error);
     }
@@ -161,19 +163,19 @@ export class SqsConsumerService implements OnModuleInit {
         MessageAttributes: {
           correlationId: {
             DataType: 'String',
-            StringValue: response.correlationId
+            StringValue: response.correlationId,
           },
           eventType: {
             DataType: 'String',
-            StringValue: response.eventType
-          }
-        }
+            StringValue: response.eventType,
+          },
+        },
       };
 
       const result = await this.sqs.sendMessage(params).promise();
       console.log('Response sent successfully:', {
         correlationId: response.correlationId,
-        messageId: result.MessageId
+        messageId: result.MessageId,
       });
     } catch (error) {
       console.error('Error sending response:', error);
