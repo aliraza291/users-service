@@ -40,7 +40,7 @@ export class SqsConsumerService implements OnModuleInit {
         if (result.Messages && result.Messages.length > 0) {
           for (const message of result.Messages) {
             await this.processMessage(message);
-            
+          console.log("read the messages")
             // Delete message after processing
             await this.sqs.deleteMessage({
               QueueUrl: this.queueUrl,
