@@ -26,7 +26,7 @@ export class SqsConsumerService implements OnModuleInit {
 
   private async startPolling() {
     console.log('Starting SQS polling for users queue...');
-     while (true) {
+ 
       try {
         const params = {
           QueueUrl: this.queueUrl,
@@ -52,7 +52,7 @@ export class SqsConsumerService implements OnModuleInit {
         console.error('Error polling SQS:', error);
         await new Promise(resolve => setTimeout(resolve, 5000));
       }
-    }}
+    }
   
 
   private async processMessage(message: any) {
