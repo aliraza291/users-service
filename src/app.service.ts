@@ -5,7 +5,7 @@ import { SqsConsumerService } from './services/sqs-consumer';
 export class AppService {
   constructor(    private readonly sqsConsumerService: SqsConsumerService){}
   async getHello(): Promise<string> {
-   await this.sqsConsumerService.startPolling()
+  //  await this.sqsConsumerService.startPolling()
     return 'Hello World!';
   }
 }
