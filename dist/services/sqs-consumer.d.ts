@@ -6,7 +6,7 @@ export declare class SqsConsumerService implements OnModuleInit {
     private readonly queueUrl;
     constructor(usersService: UsersService);
     onModuleInit(): void;
-    private startPolling;
+    startPolling(): Promise<void>;
     private processMessage;
     private sendResponse;
 }

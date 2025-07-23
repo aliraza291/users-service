@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { SQS } from 'aws-sdk';
 import { config } from 'dotenv';
-import { Interval } from '@nestjs/schedule';
 config();
 import { UsersService } from '../modules/users/users.service';
 
@@ -24,8 +23,7 @@ export class SqsConsumerService implements OnModuleInit {
     this.startPolling();
   }
 
-  @Interval(10000)
-  private async startPolling() {
+   async startPolling() {
     console.log('Starting SQS polling for users queue...');
  
       try {

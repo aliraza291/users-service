@@ -30,29 +30,27 @@ let SqsConsumerService = class SqsConsumerService {
     }
     async startPolling() {
         console.log('Starting SQS polling for users queue...');
-        while (true) {
-            try {
-                const params = {
-                    QueueUrl: this.queueUrl,
-                    MaxNumberOfMessages: 10,
-                    WaitTimeSeconds: 20,
-                    MessageAttributeNames: ['All']
-                };
-                const result = await this.sqs.receiveMessage(params).promise();
-                if (result.Messages && result.Messages.length > 0) {
-                    for (const message of result.Messages) {
-                        await this.processMessage(message);
-                        await this.sqs.deleteMessage({
-                            QueueUrl: this.queueUrl,
-                            ReceiptHandle: message.ReceiptHandle
-                        }).promise();
-                    }
+        try {
+            const params = {
+                QueueUrl: this.queueUrl,
+                MaxNumberOfMessages: 10,
+                WaitTimeSeconds: 20,
+                MessageAttributeNames: ['All']
+            };
+            const result = await this.sqs.receiveMessage(params).promise();
+            if (result.Messages && result.Messages.length > 0) {
+                for (const message of result.Messages) {
+                    await this.processMessage(message);
+                    await this.sqs.deleteMessage({
+                        QueueUrl: this.queueUrl,
+                        ReceiptHandle: message.ReceiptHandle
+                    }).promise();
                 }
             }
-            catch (error) {
-                console.error('Error polling SQS:', error);
-                await new Promise(resolve => setTimeout(resolve, 5000));
-            }
+        }
+        catch (error) {
+            console.error('Error polling SQS:', error);
+            await new Promise(resolve => setTimeout(resolve, 5000));
         }
     }
     async processMessage(message) {
