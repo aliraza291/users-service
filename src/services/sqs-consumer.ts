@@ -24,7 +24,7 @@ export class SqsConsumerService implements OnModuleInit {
     this.startPolling();
   }
 
-  private async startPolling() {
+   async startPolling() {
     console.log('Starting SQS polling for users queue...');
     while (true) {
       try {
