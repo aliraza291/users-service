@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { SQS } from 'aws-sdk';
 import { config } from 'dotenv';
+import { Interval } from '@nestjs/schedule';
 config();
 import { UsersService } from '../modules/users/users.service';
 
@@ -23,10 +24,10 @@ export class SqsConsumerService implements OnModuleInit {
     this.startPolling();
   }
 
+  @Interval(10000)
   private async startPolling() {
     console.log('Starting SQS polling for users queue...');
-    
-    while (true) {
+ 
       try {
         const params = {
           QueueUrl: this.queueUrl,
@@ -53,13 +54,12 @@ export class SqsConsumerService implements OnModuleInit {
         await new Promise(resolve => setTimeout(resolve, 5000));
       }
     }
-  }
+  
 
   private async processMessage(message: any) {
     try {
       const event = JSON.parse(message.Body);
       
-      // Extract replyTo queue URL from message attributes
       const replyTo = message.MessageAttributes?.replyTo?.StringValue;
       
       console.log('Processing event:', event);
