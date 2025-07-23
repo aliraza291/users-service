@@ -8,6 +8,6 @@ import { UsersService } from './modules/users/users.service';
 @Module({
   imports: [UsersModule],
   controllers: [AppController],
-  providers: [AppService,SqsConsumerService,UsersService],
+  providers: [AppService],
 })
 export class AppModule {}
