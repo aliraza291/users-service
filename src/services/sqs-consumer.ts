@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { SQS } from 'aws-sdk';
 import { config } from 'dotenv';
 config();
-import { UsersService } from '@/modules/users/users.service';
+import { UsersService } from '../modules/users/users.service';
 
 @Injectable()
 export class SqsConsumerService implements OnModuleInit {
