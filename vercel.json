@@ -22,7 +22,7 @@
   ],
    "crons": [{
     "path": "/poll",
-    "schedule": "5 * * * *"
+    "schedule": "1 * * * *"
   }],
   "outputDirectory": "dist"
 }
