@@ -1,11 +1,12 @@
+import { OnModuleInit } from '@nestjs/common';
 import { UsersService } from '../modules/users/users.service';
-export declare class SqsConsumerService {
+export declare class SqsConsumerService implements OnModuleInit {
     private readonly usersService;
     private sqs;
     private readonly queueUrl;
     constructor(usersService: UsersService);
-    handleCron(): void;
-    startPolling(): Promise<void>;
+    onModuleInit(): void;
+    private startPolling;
     private processMessage;
     private sendResponse;
 }
