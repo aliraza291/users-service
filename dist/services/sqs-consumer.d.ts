@@ -1,5 +1,5 @@
 import { OnModuleInit } from '@nestjs/common';
-import { UsersService } from '@/modules/users/users.service';
+import { UsersService } from '../modules/users/users.service';
 export declare class SqsConsumerService implements OnModuleInit {
     private readonly usersService;
     private sqs;
